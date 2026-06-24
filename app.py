@@ -9,7 +9,6 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent))
 
-import json
 import os as _os
 import tempfile
 
@@ -711,7 +710,7 @@ with tab3:
             use_container_width=True, key="tab3_yield_curve",
         )
         methodology_note(
-            "Current data obtained from FRED (Federal Reserve Economic Data) API to construct a par yield curve based on yields of different maturities, contrasting periodic movements as well to monitor the yield curve movements and economic narrative."
+            "Current data obtained from FRED (Federal Reserve Economic Data) API to construct a par yield curve based on yields of different maturities, monitoring periodic movements in the the yield curve movements and economic narrative."
             "Useful to monitor fixed income allocation and positioning, as of 06/22, longer term yields reflecting the expectations of the market for slowing economic growth as policy divergence between the FED and other central banks is raising expectations for rate hikes."
             "Duration measures help provide estimates for portfolio impact, identifying the most exposed constituents across your portfolio with KRD metrics for each maturity."
             "DV01 will serve as an instrumental measure to help calculate optimal hedges. Ultimately a list of desk products would be compiled, referencing the DV01 and other sensitivity measures to perform an optimization model that would calculate the hedges that reduce the highest level of exposure at the lowest marginal cost. As an Call To Action to Sales to offer hedges and products based on the portfolio analytics or for trade desks to hedge open positions and warehoused risk."
@@ -873,43 +872,5 @@ with tab5:
             f"letter-spacing:0.08em;'>{component.replace('_', ' ')}</span>"
             f"<span style='color:#CCCCCC;font-size:0.72rem;'>&nbsp;&nbsp;{source}</span>",
             unsafe_allow_html=True,
-        )
-
-    st.markdown('<div class="bbg-section"></div>', unsafe_allow_html=True)
-    st.subheader("FULL CRM OUTPUT — JSON AUDIT RECORD")
-    with st.expander("EXPAND AUDIT RECORD"):
-        st.json(json.dumps(crm.to_risk_output().to_dict(), indent=2))
-
-    st.markdown('<div class="bbg-section"></div>', unsafe_allow_html=True)
-    st.subheader("EXPORT")
-    col_exp1, col_exp2 = st.columns(2)
-    with col_exp1:
-        all_outputs = []
-        for key, outputs in var_results.items():
-            if key.startswith("_"):
-                continue
-            for o in outputs:
-                all_outputs.append(o.to_dict())
-        for o in comp_outputs:
-            all_outputs.append(o.to_dict())
-        all_outputs.append(crm.to_risk_output().to_dict())
-
-        st.download_button(
-            "DOWNLOAD RISK OUTPUTS (JSON)",
-            data=json.dumps(all_outputs, indent=2, default=str),
-            file_name="pre_risk_outputs.json",
-            mime="application/json",
-        )
-    with col_exp2:
-        csv_rows = [
-            {"METRIC": o["metric_name"], "VALUE": o["value"],
-             "UNIT": o["unit"], "METHODOLOGY": o["methodology"]}
-            for o in all_outputs
-        ]
-        st.download_button(
-            "DOWNLOAD RISK OUTPUTS (CSV)",
-            data=pd.DataFrame(csv_rows).to_csv(index=False),
-            file_name="pre_risk_outputs.csv",
-            mime="text/csv",
         )
 
