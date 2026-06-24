@@ -864,7 +864,7 @@ with tab5:
             st.error(flag)
     else:
         st.success("NO LIMIT BREACHES DETECTED")
-'''
+
     st.markdown('<div class="bbg-section"></div>', unsafe_allow_html=True)
     st.subheader("AUDIT TRAIL — COMPONENT SOURCES")
     for component, source in crm.component_sources.items():
@@ -875,10 +875,10 @@ with tab5:
             unsafe_allow_html=True,
         )
 
-    #st.markdown('<div class="bbg-section"></div>', unsafe_allow_html=True)
-    #st.subheader("FULL CRM OUTPUT — JSON AUDIT RECORD")
-    #with st.expander("EXPAND AUDIT RECORD"):
-    #    st.json(json.dumps(crm.to_risk_output().to_dict(), indent=2))
+    st.markdown('<div class="bbg-section"></div>', unsafe_allow_html=True)
+    st.subheader("FULL CRM OUTPUT — JSON AUDIT RECORD")
+    with st.expander("EXPAND AUDIT RECORD"):
+        st.json(json.dumps(crm.to_risk_output().to_dict(), indent=2))
 
     st.markdown('<div class="bbg-section"></div>', unsafe_allow_html=True)
     st.subheader("EXPORT")
@@ -912,4 +912,4 @@ with tab5:
             file_name="pre_risk_outputs.csv",
             mime="text/csv",
         )
-'''
+
