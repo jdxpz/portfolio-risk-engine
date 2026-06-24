@@ -55,7 +55,7 @@ from charts.performance_charts import attribution_bar_chart, performance_summary
 # ---------------------------------------------------------------------------
 
 st.set_page_config(
-    page_title="DEL POZO CAPITAL — Portfolio Risk Analytics Engine",
+    page_title="JDX Capital & Analytics — Portfolio Risk Engine",
     page_icon=None,
     layout="wide",
     initial_sidebar_state="expanded",
@@ -378,7 +378,7 @@ def methodology_note(text: str) -> None:
 # ---------------------------------------------------------------------------
 
 with st.sidebar:
-    st.markdown("### DEL POZO CAPITAL")
+    st.markdown("### JDX CAPITAL")
     st.markdown("**PORTFOLIO ANALYTICS RISK ENGINE**")
     st.divider()
 
@@ -711,8 +711,10 @@ with tab3:
             use_container_width=True, key="tab3_yield_curve",
         )
         methodology_note(
-            "[ Placeholder — explain your yield-curve construction, data source "
-            "(FRED par yields), and how it feeds the rates-risk metrics here. ]"
+            "Current data obtained from FRED (Federal Reserve Economic Data) API to construct a par yield curve based on yields of different maturities, contrasting periodic movements as well to monitor the yield curve movements and economic narrative."
+            "Useful to monitor fixed income allocation and positioning, as of 06/22, longer term yields reflecting the expectations of the market for slowing economic growth as policy divergence between the FED and other central banks is raising expectations for rate hikes."
+            "Duration measures help provide estimates for portfolio impact, identifying the most exposed constituents across your portfolio with KRD metrics for each maturity."
+            "DV01 will serve as an instrumental measure to help calculate optimal hedges. Ultimately a list of desk products would be compiled, referencing the DV01 and other sensitivity measures to perform an optimization model that would calculate the hedges that reduce the highest level of exposure at the lowest marginal cost. As an Call To Action to Sales to offer hedges and products based on the portfolio analytics or for trade desks to hedge open positions and warehoused risk."
         )
 
         if not (portfolio["asset_class"] == "BOND").any():
@@ -760,7 +762,7 @@ with tab4:
         use_container_width=True, key="tab4_scenario_bar",
     )
     methodology_note(
-        "Historical scenario analysis obtains historical market data for major stress scenarios and models the P&L effects to the current portfolio. The methodology assesses how current exposures would perform under market conditions analogous to historical and severe market stress scenarios. Scenario P&L is also decomposed by asset class (Rates, Credit, Equity, and Commodities) to identify the primary exposures and drivers of portfolio performance under each stress event."
+        "Historical scenario analysis obtains historical market data for major stress scenarios and models the P&L effects to the current portfolio. The methodology assesses how current exposures would perform under market conditions analogous to historical and severe market stress scenarios. Scenario P&L is also decomposed by asset class (Rates, Credit, Equity, and Commodities) to identify the primary exposures and drivers of portfolio performance under each stress event. The below feature allow to model portfolio positioning and P&L for customized scenarios, which may align to external or in house research views."
     )
 
     col_s1, col_s2 = st.columns(2)
@@ -810,14 +812,7 @@ with tab4:
     st.markdown('<div class="bbg-section"></div>', unsafe_allow_html=True)
     st.subheader("PROBABILISTIC EXPECTED LOSS")
     methodology_note(
-        "Probability-weighted average P&L across the five historical stress scenarios. "
-        "Each scenario P&L is a first-order sensitivity estimate (DV01 / KRD for rates and "
-        "credit; linear value-scaling for equity and commodity), weighted by judgmental "
-        "annual base rates normalised to sum to 1 — so this reads as the "
-        "<b>expected loss conditional on one of these regimes recurring</b>, not an "
-        "unconditional forecast. Base rates (≈2% GFC to ≈8% taper-style stress) are "
-        "expert-judgment, not data-calibrated; the figure is most sensitive to these "
-        "weights, so treat it as directional."
+        "Probability-weighted average P&L across the five historical stress scenarios, interpreted as the conditional expected hit to the portfolio if one of these black swan or tail risk event scenario were to happen. Probabilities for each event are estimated and weights are normalized as: Normalized Weight=P(Scenario X∣One of these 5 scenarios occurs). The total Conditional Expected Loss can be expressed as:  Conditional_Expected_Loss = Σ_5Scenarios(Scenario_i_PnL * (Scenario_i_Probability / Total_Stress_Probability)"
     )
     try:
         pel = probabilistic_expected_loss(stress_results)
@@ -847,8 +842,8 @@ with tab5:
 
     st.subheader("COMPREHENSIVE RISK MEASURE BREAKDOWN")
     st.caption(
-        "CRM = VAR + STRESSED VAR + INCREMENTAL DEFAULT RISK + LIQUIDITY ADD-ON  |  "
-        "MIRRORS BASEL III / FRTB INTERNAL MODELS APPROACH"
+        "CRM = VAR + STRESSED VAR + DEFAULT RISK + LIQUIDITY ADD-ON  |  "
+        "BUILT BASED ON BASEL III / FRTB. DEFINED AS AN INTERNAL CALCULATED MODEL APPROACH, AND THE COMPONENTS WERE CHOSEN BASED ON INSITUTIONAL PRACTICES AND USED FACTORS. CRM ESTABLISHES THE INTERNAL RISK LIMIT"
     )
 
     crm_cols = st.columns(5)
@@ -869,7 +864,7 @@ with tab5:
             st.error(flag)
     else:
         st.success("NO LIMIT BREACHES DETECTED")
-
+'''
     st.markdown('<div class="bbg-section"></div>', unsafe_allow_html=True)
     st.subheader("AUDIT TRAIL — COMPONENT SOURCES")
     for component, source in crm.component_sources.items():
@@ -880,10 +875,10 @@ with tab5:
             unsafe_allow_html=True,
         )
 
-    st.markdown('<div class="bbg-section"></div>', unsafe_allow_html=True)
-    st.subheader("FULL CRM OUTPUT — JSON AUDIT RECORD")
-    with st.expander("EXPAND AUDIT RECORD"):
-        st.json(json.dumps(crm.to_risk_output().to_dict(), indent=2))
+    #st.markdown('<div class="bbg-section"></div>', unsafe_allow_html=True)
+    #st.subheader("FULL CRM OUTPUT — JSON AUDIT RECORD")
+    #with st.expander("EXPAND AUDIT RECORD"):
+    #    st.json(json.dumps(crm.to_risk_output().to_dict(), indent=2))
 
     st.markdown('<div class="bbg-section"></div>', unsafe_allow_html=True)
     st.subheader("EXPORT")
@@ -917,3 +912,4 @@ with tab5:
             file_name="pre_risk_outputs.csv",
             mime="text/csv",
         )
+'''
