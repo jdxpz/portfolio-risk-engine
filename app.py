@@ -710,7 +710,7 @@ with tab3:
             use_container_width=True, key="tab3_yield_curve",
         )
         methodology_note(
-            "Current data obtained from FRED (Federal Reserve Economic Data) API to construct a par yield curve based on yields of different maturities, monitoring periodic movements in the the yield curve movements and economic narrative."
+            "Current data obtained from FRED (Federal Reserve Economic Data) API to construct a par yield curve based on yields of different maturities, monitoring periodic movements in the the yield curve and economic narrative."
             "Useful to monitor fixed income allocation and positioning, as of 06/22, longer term yields reflecting the expectations of the market for slowing economic growth as policy divergence between the FED and other central banks is raising expectations for rate hikes."
             "Duration measures help provide estimates for portfolio impact, identifying the most exposed constituents across your portfolio with KRD metrics for each maturity."
             "DV01 will serve as an instrumental measure to help calculate optimal hedges. Ultimately a list of desk products would be compiled, referencing the DV01 and other sensitivity measures to perform an optimization model that would calculate the hedges that reduce the highest level of exposure at the lowest marginal cost. As an Call To Action to Sales to offer hedges and products based on the portfolio analytics or for trade desks to hedge open positions and warehoused risk."
