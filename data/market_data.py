@@ -117,6 +117,14 @@ def fetch_prices(
                     f"yfinance returned empty data for {tickers} over {start} -> {end}"
                 )
             df = _extract_close(raw, tickers)
+            # A partial fetch (some tickers rate-limited -> missing or all-NaN)
+            # must not be cached or served. Treat it as a failure so we retry and
+            # ultimately fall back to the complete committed snapshot.
+            incomplete = [t for t in tickers if t not in df.columns or df[t].isna().all()]
+            if incomplete:
+                raise ContractError(
+                    f"yfinance returned incomplete data; missing/empty tickers: {incomplete}"
+                )
             CACHE_DIR.mkdir(parents=True, exist_ok=True)
             df.to_parquet(cache_path)
             logger.info("Cached to %s", cache_path.name)
