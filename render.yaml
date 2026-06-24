@@ -1,0 +1,23 @@
+# Render Blueprint for the Portfolio Risk Engine (Streamlit).
+# Deploy: push to GitHub, then New -> Blueprint on render.com and point it here.
+# Set the FRED_API_KEY secret in the Render dashboard (sync: false keeps it out of git).
+services:
+  - type: web
+    name: portfolio-risk-engine
+    runtime: python
+    plan: starter                      # always-on; required for the persistent disk
+    region: virginia                   # US-East — change if you prefer another region
+    branch: main
+    buildCommand: pip install -r requirements.txt
+    startCommand: streamlit run app.py --server.port $PORT --server.address 0.0.0.0 --server.headless true
+    healthCheckPath: /_stcore/health
+    autoDeploy: true
+    envVars:
+      - key: FRED_API_KEY
+        sync: false                    # set this in the Render dashboard, not in git
+      - key: PYTHON_VERSION
+        value: "3.12.4"
+    disk:
+      name: pre-cache
+      mountPath: /opt/render/project/src/.cache
+      sizeGB: 1

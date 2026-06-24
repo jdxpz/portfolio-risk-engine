@@ -1,0 +1,18 @@
+# Streamlit runtime configuration for production (Render).
+# The server port is supplied per-deploy by Render via $PORT and passed on the
+# CLI in render.yaml; it is intentionally not hard-coded here.
+
+[server]
+headless = true
+address = "0.0.0.0"
+maxUploadSize = 5          # MB — portfolio CSVs are tiny; cap uploads defensively
+
+[browser]
+gatherUsageStats = false
+
+[theme]
+base = "dark"
+primaryColor = "#FFA500"
+backgroundColor = "#000000"
+secondaryBackgroundColor = "#0A0A0A"
+textColor = "#FFFFFF"
