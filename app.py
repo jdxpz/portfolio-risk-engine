@@ -694,7 +694,7 @@ with tab2:
     if default_el is not None:
         st.markdown('<div class="bbg-section"></div>', unsafe_allow_html=True)
         st.subheader("INCREMENTAL DEFAULT LOSS — BOND BOOK")
-        st.caption("WARNING: PD AND LGD ARE USER-SUPPLIED ASSUMPTIONS — NOT CALIBRATED MODEL ESTIMATES")
+        st.caption("WARNING: PD AND LGD ARE USER-SUPPLIED ASSUMPTIONS — NOT CALIBRATED MODEL ESTIMATES. CREDIT RISK ANALYSIS FRAMEWORK FROM CFA L1 CURRICULUM")
         dc1, dc2 = st.columns(2)
         dc1.metric("EXPECTED DEFAULT LOSS",    f"${default_el.value:,.0f}")
         dc2.metric("DEFAULT LOSS VAR (99%)",   f"${default_var99.value:,.0f}")
@@ -760,8 +760,7 @@ with tab4:
         use_container_width=True, key="tab4_scenario_bar",
     )
     methodology_note(
-        "[ Placeholder — explain your historical scenario selection and the "
-        "factor decomposition (rates / credit / equity / commodity) here. ]"
+        "Historical scenario analysis obtains historical market data for major stress scenarios and models the P&L effects to the current portfolio. The methodology assesses how current exposures would perform under market conditions analogous to historical and severe market stress scenarios. Scenario P&L is also decomposed by asset class (Rates, Credit, Equity, and Commodities) to identify the primary exposures and drivers of portfolio performance under each stress event."
     )
 
     col_s1, col_s2 = st.columns(2)
@@ -811,15 +810,21 @@ with tab4:
     st.markdown('<div class="bbg-section"></div>', unsafe_allow_html=True)
     st.subheader("PROBABILISTIC EXPECTED LOSS")
     methodology_note(
-        "[ Placeholder — explain your scenario probability weighting and the "
-        "probability-weighted expected-loss calculation here. ]"
+        "Probability-weighted average P&L across the five historical stress scenarios. "
+        "Each scenario P&L is a first-order sensitivity estimate (DV01 / KRD for rates and "
+        "credit; linear value-scaling for equity and commodity), weighted by judgmental "
+        "annual base rates normalised to sum to 1 — so this reads as the "
+        "<b>expected loss conditional on one of these regimes recurring</b>, not an "
+        "unconditional forecast. Base rates (≈2% GFC to ≈8% taper-style stress) are "
+        "expert-judgment, not data-calibrated; the figure is most sensitive to these "
+        "weights, so treat it as directional."
     )
     try:
         pel = probabilistic_expected_loss(stress_results)
         st.metric("PROBABILITY-WEIGHTED EXPECTED LOSS", f"${pel.value:,.0f}")
         st.caption(
             "WARNING: SCENARIO PROBABILITIES ARE INDICATIVE BASE RATES — "
-            "NOT CALIBRATED MODEL OUTPUTS. TREAT AS DIRECTIONAL."
+            "NOT CALIBRATED MODEL OUTPUTS. TREAT AS ESTIMATES AND DIRECTIONAL."
         )
     except Exception as e:
         st.warning(str(e))
