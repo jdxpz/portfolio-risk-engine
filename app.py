@@ -20,7 +20,7 @@ import streamlit as st
 from data.contracts import ScenarioShock
 from data.market_data import fetch_prices
 from data.portfolio_loader import load_portfolio
-from data.scenario_store import HISTORICAL_SCENARIOS, RATE_SENSITIVITY_SCENARIOS
+from data.scenario_store import HISTORICAL_SCENARIOS
 from data.yield_fetcher import fetch_yield_curve, fetch_recession_flags
 from analytics.returns import (
     compute_log_returns,
@@ -360,6 +360,19 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
+
+def methodology_note(text: str) -> None:
+    """Small editable placeholder caption box for documenting methodology."""
+    st.markdown(
+        f'<div style="border:1px solid #333333; border-left:3px solid #FFA500; '
+        f'background:#0A0A0A; padding:0.5rem 0.8rem; margin:0.3rem 0 0.7rem 0; '
+        f'color:#999999; font-size:0.7rem; line-height:1.45;">'
+        f'<span style="color:#FFA500; font-weight:600; letter-spacing:0.08em;">'
+        f'METHODOLOGY NOTE</span><br>{text}</div>',
+        unsafe_allow_html=True,
+    )
+
+
 # ---------------------------------------------------------------------------
 # Sidebar
 # ---------------------------------------------------------------------------
@@ -587,7 +600,7 @@ tab1, tab2, tab3, tab4, tab5 = st.tabs([
 
 with tab1:
     st.subheader("POSITIONS AND WEIGHTS")
-    display_cols = ["ticker", "asset_class", "quantity",
+    display_cols = ["ticker", "name", "asset_class", "quantity",
                     "cost_basis_usd", "market_value_usd", "weight", "currency"]
     disp = portfolio[display_cols].copy()
     disp["weight"]          = disp["weight"].map("{:.2%}".format)
@@ -697,6 +710,10 @@ with tab3:
             yield_curve_chart(yield_curve, recession),
             use_container_width=True, key="tab3_yield_curve",
         )
+        methodology_note(
+            "[ Placeholder — explain your yield-curve construction, data source "
+            "(FRED par yields), and how it feeds the rates-risk metrics here. ]"
+        )
 
         if not (portfolio["asset_class"] == "BOND").any():
             st.info("NO BOND POSITIONS IN PORTFOLIO — RATES RISK NOT APPLICABLE")
@@ -741,6 +758,10 @@ with tab4:
     st.plotly_chart(
         scenario_pnl_chart(stress_results),
         use_container_width=True, key="tab4_scenario_bar",
+    )
+    methodology_note(
+        "[ Placeholder — explain your historical scenario selection and the "
+        "factor decomposition (rates / credit / equity / commodity) here. ]"
     )
 
     col_s1, col_s2 = st.columns(2)
@@ -789,6 +810,10 @@ with tab4:
 
     st.markdown('<div class="bbg-section"></div>', unsafe_allow_html=True)
     st.subheader("PROBABILISTIC EXPECTED LOSS")
+    methodology_note(
+        "[ Placeholder — explain your scenario probability weighting and the "
+        "probability-weighted expected-loss calculation here. ]"
+    )
     try:
         pel = probabilistic_expected_loss(stress_results)
         st.metric("PROBABILITY-WEIGHTED EXPECTED LOSS", f"${pel.value:,.0f}")
@@ -798,14 +823,6 @@ with tab4:
         )
     except Exception as e:
         st.warning(str(e))
-
-    st.markdown('<div class="bbg-section"></div>', unsafe_allow_html=True)
-    st.subheader("RATE SENSITIVITY SCENARIOS")
-    rate_stress_results = run_all_scenarios(portfolio, _yc, RATE_SENSITIVITY_SCENARIOS)
-    st.plotly_chart(
-        scenario_pnl_chart(rate_stress_results),
-        use_container_width=True, key="tab4_rate_sensitivity",
-    )
 
 # ── Tab 5: CRM Summary ──────────────────────────────────────────────────────
 

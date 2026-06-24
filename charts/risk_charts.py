@@ -34,12 +34,15 @@ def var_comparison_chart(var_outputs: dict[str, list[RiskOutput]]) -> go.Figure:
     )
 
     for col_idx, metric_idx in enumerate([0, 1]):
+        is_cvar = metric_idx == 1
         for method in methods:
             x_vals, y_vals = [], []
             for conf in confidences:
                 key = f"{method}_{conf}"
                 if key in var_outputs:
-                    x_vals.append(f"{conf}%")
+                    # CVaR (expected shortfall) is framed by tail probability
+                    # (5% / 1%); VaR keeps the confidence framing (95% / 99%).
+                    x_vals.append(f"{100 - conf}% TAIL" if is_cvar else f"{conf}%")
                     y_vals.append(var_outputs[key][metric_idx].value)
 
             fig.add_trace(

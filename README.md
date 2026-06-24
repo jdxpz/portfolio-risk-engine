@@ -54,8 +54,8 @@ export FRED_API_KEY="your_fred_key"      # optional; enables the Rates Risk tab
 streamlit run app.py
 ```
 
-Upload your own portfolio CSV (`ticker, asset_class, quantity, cost_basis_usd, currency`)
-or use the bundled sample.
+Upload your own portfolio CSV (`ticker, asset_class, quantity, cost_basis_usd, currency`;
+optional `name`/`description` column for the product label) or use the bundled sample.
 
 ## Deployment (Render)
 

@@ -28,6 +28,7 @@ ETF_OVERRIDES: dict[str, AssetClass] = {
     "UUP":  AssetClass.FX,         # Invesco USD Bull
     "FXE":  AssetClass.FX,         # Invesco Euro
     "GLD":  AssetClass.COMMODITY,  # SPDR Gold
+    "SLV":  AssetClass.COMMODITY,  # iShares Silver Trust
     "USO":  AssetClass.COMMODITY,  # United States Oil
     "SHV":  AssetClass.CASH,       # iShares Short Treasury (cash proxy)
 }
@@ -66,6 +67,9 @@ def load_portfolio(csv_path: str | Path) -> pd.DataFrame:
         "cost_basis": "cost_basis_usd",
         "asset class": "asset_class",
         "assetclass": "asset_class",
+        "description": "name",
+        "product": "name",
+        "product_name": "name",
     }
     df = df.rename(columns=rename_map)
 
@@ -77,6 +81,11 @@ def load_portfolio(csv_path: str | Path) -> pd.DataFrame:
     df["ticker"] = df["ticker"].str.upper().str.strip()
     df["currency"] = df["currency"].str.upper().str.strip()
     df["asset_class"] = df["asset_class"].str.upper().str.strip()
+
+    # Optional human-readable product name; default to the ticker if absent.
+    if "name" not in df.columns:
+        df["name"] = df["ticker"]
+    df["name"] = df["name"].astype(str).str.strip()
 
     # Apply ETF overrides
     for ticker, cls in ETF_OVERRIDES.items():
@@ -114,8 +123,8 @@ def load_portfolio(csv_path: str | Path) -> pd.DataFrame:
     # Attach duration proxy for bond ETFs
     df["duration_years"] = df["ticker"].map(ETF_DURATION).fillna(0.0)
 
-    # Reorder to contract columns + extras
-    output_cols = PORTFOLIO_COLUMNS + ["market_value_usd", "duration_years"]
+    # Reorder to contract columns + extras (name carried through for display)
+    output_cols = PORTFOLIO_COLUMNS + ["name", "market_value_usd", "duration_years"]
     for col in output_cols:
         if col not in df.columns:
             df[col] = 0.0

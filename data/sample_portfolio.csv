@@ -1,11 +1,9 @@
-ticker,asset_class,quantity,cost_basis_usd,currency
-AAPL,EQUITY,200,155,USD
-MSFT,EQUITY,150,239,USD
-NVDA,EQUITY,50,120,USD
-JPM,EQUITY,100,263,USD
-TLT,BOND,300,95,USD
-IEF,BOND,200,97,USD
-HYG,BOND,400,76,USD
-GLD,COMMODITY,100,175,USD
-USO,COMMODITY,150,72,USD
-UUP,FX,500,28,USD
+ticker,name,asset_class,quantity,cost_basis_usd,currency
+SPY,SPDR S&P 500 ETF Trust,EQUITY,75,400,USD
+TLT,iShares 20+ Year Treasury Bond ETF,BOND,400,90,USD
+IEF,iShares 7-10 Year Treasury Bond ETF,BOND,300,100,USD
+LQD,iShares iBoxx $ Investment Grade Corporate Bond ETF,BOND,300,100,USD
+HYG,iShares iBoxx $ High Yield Corporate Bond ETF,BOND,300,80,USD
+GLD,SPDR Gold Shares,COMMODITY,100,180,USD
+SLV,iShares Silver Trust,COMMODITY,500,24,USD
+UUP,Invesco DB US Dollar Index Bullish Fund,FX,700,28,USD
