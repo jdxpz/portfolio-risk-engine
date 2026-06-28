@@ -41,6 +41,14 @@ ETF_DURATION: dict[str, float] = {
     "HYG": 4.0,
 }
 
+# Treasury (government) bond tickers — these carry no credit spread, so they are
+# exempt from credit-spread shocks in the stress engine.
+TREASURY_TICKERS: set[str] = {
+    "TLT", "IEF", "IEI", "SHY", "TLH", "GOVT", "GOVZ", "EDV", "ZROZ",
+    "VGSH", "VGIT", "VGLT", "SPTL", "SPTS", "SPTI", "SCHO", "SCHR",
+    "BIL", "GBIL", "USFR",
+}
+
 
 def load_portfolio(csv_path: str | Path) -> pd.DataFrame:
     """
@@ -123,8 +131,11 @@ def load_portfolio(csv_path: str | Path) -> pd.DataFrame:
     # Attach duration proxy for bond ETFs
     df["duration_years"] = df["ticker"].map(ETF_DURATION).fillna(0.0)
 
+    # Flag Treasury (government) bonds — exempt from credit-spread shocks.
+    df["is_treasury"] = df["ticker"].isin(TREASURY_TICKERS)
+
     # Reorder to contract columns + extras (name carried through for display)
-    output_cols = PORTFOLIO_COLUMNS + ["name", "market_value_usd", "duration_years"]
+    output_cols = PORTFOLIO_COLUMNS + ["name", "is_treasury", "market_value_usd", "duration_years"]
     for col in output_cols:
         if col not in df.columns:
             df[col] = 0.0

@@ -102,18 +102,33 @@ def _credit_pnl(
     yield_curve: pd.DataFrame,
     spread_shift_bps: float,
 ) -> float:
-    """Dollar P&L from credit spread widening using DV01 equivalent."""
+    """
+    Dollar P&L from credit spread widening, via the DV01 of CREDIT-bearing bonds only.
+    Treasury (government) bonds carry no credit spread and are exempt (is_treasury flag).
+    """
     from analytics.rates_risk import compute_dv01
     if spread_shift_bps == 0:
         return 0.0
     bond_positions = portfolio_df[portfolio_df["asset_class"] == "BOND"]
     if bond_positions.empty or yield_curve.empty:
         return 0.0
+
+    # Credit spreads hit only credit-bearing bonds; exclude Treasuries.
+    if "is_treasury" in bond_positions.columns:
+        credit_tickers = set(
+            bond_positions.loc[~bond_positions["is_treasury"].astype(bool), "ticker"]
+        )
+    else:
+        credit_tickers = set(bond_positions["ticker"])   # fallback: no classification
+    if not credit_tickers:
+        return 0.0
+
     dv01_outputs = compute_dv01(portfolio_df, yield_curve)
-    portfolio_dv01 = next(
-        (o.value for o in dv01_outputs if o.metric_name == "Portfolio DV01"), 0.0
+    credit_dv01 = sum(
+        o.value for o in dv01_outputs
+        if "Portfolio" not in o.metric_name and o.metadata.get("ticker") in credit_tickers
     )
-    return -portfolio_dv01 * spread_shift_bps
+    return -credit_dv01 * spread_shift_bps
 
 
 def _equity_pnl(portfolio_df: pd.DataFrame, equity_shock_pct: float) -> float:
