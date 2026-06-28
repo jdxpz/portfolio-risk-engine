@@ -18,7 +18,7 @@ import streamlit as st
 
 from data.contracts import ScenarioShock
 from data.market_data import fetch_prices
-from data.portfolio_loader import load_portfolio
+from data.portfolio_loader import load_portfolio, mark_to_market
 from data.scenario_store import HISTORICAL_SCENARIOS
 from data.yield_fetcher import fetch_yield_curve, fetch_recession_flags
 from analytics.returns import (
@@ -421,6 +421,7 @@ def load_data(csv_path: str | None, start: str, fred_key: str | None):
 
     tickers = portfolio["ticker"].tolist()
     prices  = fetch_prices(tickers, start=start)
+    portfolio = mark_to_market(portfolio, prices)   # revalue to MTM (latest price x qty)
     returns = compute_log_returns(prices)
 
     # Provenance is read here (inside the cached fn) into plain values, since a
@@ -566,7 +567,7 @@ st.markdown(f"""
 """, unsafe_allow_html=True)
 
 col1, col2, col3, col4, col5 = st.columns(5)
-col1.metric("PORTFOLIO VALUE",          f"${portfolio_value:,.0f}")
+col1.metric("MTM PORTFOLIO VALUE",      f"${portfolio_value:,.0f}")
 col2.metric(f"MC VAR {int(var_confidence*100)}%", f"${var_usd:,.0f} ")
 col3.metric(f"MC CVAR {int(var_confidence*100)}%",f"${cvar_usd:,.0f}")
 col4.metric("CRM CAPITAL",              f"${crm.total_crm:,.0f}")
@@ -600,11 +601,13 @@ tab1, tab2, tab3, tab4, tab5 = st.tabs([
 with tab1:
     st.subheader("POSITIONS AND WEIGHTS")
     display_cols = ["ticker", "name", "asset_class", "quantity",
-                    "cost_basis_usd", "market_value_usd", "weight", "currency"]
+                    "cost_basis_usd", "mtm_price", "market_value_usd", "weight", "currency"]
     disp = portfolio[display_cols].copy()
     disp["weight"]          = disp["weight"].map("{:.2%}".format)
+    disp["mtm_price"]       = disp["mtm_price"].map("${:,.2f}".format)
     disp["market_value_usd"]= disp["market_value_usd"].map("${:,.0f}".format)
     disp["cost_basis_usd"]  = disp["cost_basis_usd"].map("${:.2f}".format)
+    disp = disp.rename(columns={"mtm_price": "mtm_share_value"})
     disp.columns            = [c.upper().replace("_", " ") for c in disp.columns]
     st.dataframe(disp, use_container_width=True, hide_index=True)
 
@@ -613,6 +616,16 @@ with tab1:
         performance_summary_figure(port_returns, perf["drawdown_series"], perf["rolling_sharpe"]),
         use_container_width=True, key="tab1_perf_summary",
     )
+
+    st.subheader("PORTFOLIO P&L — UNREALIZED (MARK-TO-MARKET)")
+    cost_basis_total = float(portfolio["cost_value_usd"].sum())
+    mtm_total        = float(portfolio["market_value_usd"].sum())
+    unrealized_pnl   = mtm_total - cost_basis_total
+    pnl_pct          = unrealized_pnl / cost_basis_total if cost_basis_total else 0.0
+    pnl_cols = st.columns(3)
+    pnl_cols[0].metric("COST BASIS",          f"${cost_basis_total:,.0f}")
+    pnl_cols[1].metric("MARKET VALUE (MTM)",  f"${mtm_total:,.0f}")
+    pnl_cols[2].metric("UNREALIZED P&L",      f"${unrealized_pnl:,.0f}", delta=f"{pnl_pct:+.2%}")
 
     col_a, col_b = st.columns(2)
     with col_a:

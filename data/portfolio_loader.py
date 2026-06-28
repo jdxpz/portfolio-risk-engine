@@ -132,3 +132,41 @@ def load_portfolio(csv_path: str | Path) -> pd.DataFrame:
     df = df[output_cols].reset_index(drop=True)
 
     return validate_portfolio(df)
+
+
+def mark_to_market(portfolio_df: pd.DataFrame, prices: pd.DataFrame) -> pd.DataFrame:
+    """
+    Revalue a loaded portfolio to market using the most recent price per ticker.
+
+    Overwrites the cost-based ``market_value_usd``/``weight`` with true
+    mark-to-market (latest price x quantity) and adds:
+      mtm_price           most recent available close per ticker
+      cost_value_usd      quantity x cost_basis_usd (retained for P&L)
+      unrealized_pnl_usd  market_value_usd - cost_value_usd
+
+    Falls back to cost basis for any ticker with no price so valuation never
+    crashes; weights are renormalised on the marked values.
+    """
+    df = portfolio_df.copy()
+
+    def _latest_price(ticker: str, cost_basis: float) -> float:
+        if ticker in prices.columns:
+            series = prices[ticker].dropna()
+            if not series.empty:
+                return float(series.iloc[-1])
+        logger.warning("mark_to_market: no price for %s; using cost basis", ticker)
+        return float(cost_basis)
+
+    df["mtm_price"] = [
+        _latest_price(t, cb) for t, cb in zip(df["ticker"], df["cost_basis_usd"])
+    ]
+    df["cost_value_usd"] = df["quantity"] * df["cost_basis_usd"]
+    df["market_value_usd"] = df["quantity"] * df["mtm_price"]
+
+    total_mv = df["market_value_usd"].sum()
+    if total_mv <= 0:
+        raise ContractError("mark_to_market: total market value is zero or negative")
+    df["weight"] = df["market_value_usd"] / total_mv
+    df["unrealized_pnl_usd"] = df["market_value_usd"] - df["cost_value_usd"]
+
+    return validate_portfolio(df)
