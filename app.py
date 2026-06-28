@@ -726,7 +726,7 @@ with tab3:
             "Current data obtained from FRED (Federal Reserve Economic Data) API to construct a par yield curve based on yields of different maturities, monitoring periodic movements in the the yield curve and economic narrative."
             "Useful to monitor fixed income allocation and positioning, as of 06/22, longer term yields reflecting the expectations of the market for slowing economic growth as policy divergence between the FED and other central banks is raising expectations for rate hikes."
             "Duration measures help provide estimates for portfolio impact, identifying the most exposed constituents across your portfolio with KRD metrics for each maturity."
-            "DV01 will serve as an instrumental measure to help calculate optimal hedges. Ultimately a list of desk products would be compiled, referencing the DV01 and other sensitivity measures to perform an optimization model that would calculate the hedges that reduce the highest level of exposure at the lowest marginal cost. As an Call To Action to Sales to offer hedges and products based on the portfolio analytics or for trade desks to hedge open positions and warehoused risk."
+            "DV01 will serve as an instrumental measure to help calculate optimal hedges. Ultimately a list of desk products would be compiled, referencing the DV01 and other sensitivity measures to perform an optimization model that would calculate the hedges that reduce the highest level of exposure at the lowest marginal cost. Upcoming hedge optimization feature as a Call To Action to Sales to offer hedges and products based on the portfolio analytics or for trade desks to hedge open positions and warehoused risk."
         )
 
         if not (portfolio["asset_class"] == "BOND").any():
@@ -797,7 +797,7 @@ with tab4:
         )
 
     st.markdown('<div class="bbg-section"></div>', unsafe_allow_html=True)
-    st.subheader("HYPOTHETICAL SCENARIO BUILDER")
+    st.subheader("HYPOTHETICAL SCENARIO BUILDER - FACTOR DECOMPOSITION")
     st.caption("DEFINE A CUSTOM SHOCK ACROSS ALL FOUR RISK DIMENSIONS")
     hyp_cols = st.columns(4)
     rate_shock      = hyp_cols[0].slider("RATE SHIFT (BPS, ALL MATURITIES)", -300, 400, 0, 10)
@@ -831,7 +831,7 @@ with tab4:
         st.metric("PROBABILITY-WEIGHTED EXPECTED LOSS", f"${pel.value:,.0f}")
         st.caption(
             "WARNING: SCENARIO PROBABILITIES ARE INDICATIVE BASE RATES — "
-            "NOT CALIBRATED MODEL OUTPUTS. TREAT AS ESTIMATES AND DIRECTIONAL."
+            "NOT CALIBRATED MODEL OUTPUTS. ESTIMATES AND DIRECTIONAL NUMBERS."
         )
     except Exception as e:
         st.warning(str(e))
